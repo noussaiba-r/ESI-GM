@@ -133,7 +133,7 @@ const SuperAdminDashboard = () => {
       building: 'Building B ',
       floor: 'Floor 1',
       capacity: 25,
-      admin: 'Dr. Ahmed Ben',
+      admin: 'Dr. Ahmed Benali',
       status: 'active',
     },
     {
@@ -142,7 +142,7 @@ const SuperAdminDashboard = () => {
       building: 'Building C',
       floor: 'Floor 3',
       capacity: 15,
-      admin: 'Prof. Salima Zahra',
+      admin: 'Prof. Fatima Zahra',
       status: 'active',
     },
     {
@@ -151,7 +151,7 @@ const SuperAdminDashboard = () => {
       building: 'Building D',
       floor: '  Floor 1',
       capacity: 40,
-      admin: 'Mr. Mohamed Khalil',
+      admin: 'Mr. Mohamed Cherif',
       status: 'warning',
     },
   ]);
@@ -358,7 +358,7 @@ const SuperAdminDashboard = () => {
           <ManagementBtn
             icon={Users}
             label="User Management"
-            sub="Edit admins, manage permissions and roles"
+            sub="Add admins, manage permissions and roles"
             color="bg-[rgba(43,127,255,0.09)] text-blue-600"
             dark={dark}
             className="bg-[rgba(43,127,255,0.05)]"
