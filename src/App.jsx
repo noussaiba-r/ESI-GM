@@ -8,6 +8,7 @@ import Register from './Pages/Register';
 
 import { RequestProvider } from './Context/RequestContext';
 import { ToastProvider } from './Context/ToastContext';
+import SuperAdminDashboard from './Pages/SuperAdminDashboard';
 
 import './App.css';
 
@@ -22,7 +23,11 @@ function App() {
           <div className={dark ? 'dark' : ''}>
             <Routes>
               <Route path="/register" element={<Register />} />
-              <Route path="/" element={<MyRequestsPage toggleTheme={toggleTheme} dark={dark} />} />
+              <Route
+                path="/request"
+                element={<MyRequestsPage toggleTheme={toggleTheme} dark={dark} />}
+              />
+              <Route path="/" element={<SuperAdminDashboard />} />
             </Routes>
           </div>
         </RequestProvider>
