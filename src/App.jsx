@@ -9,6 +9,7 @@ import Register from './Pages/Register';
 import { RequestProvider } from './Context/RequestContext';
 import { ToastProvider } from './Context/ToastContext';
 import SuperAdminDashboard from './Pages/SuperAdminDashboard';
+import LaboratoryInventory from './Pages/LaboratoryInventory';
 
 import './App.css';
 
@@ -27,7 +28,8 @@ function App() {
                 path="/request"
                 element={<MyRequestsPage toggleTheme={toggleTheme} dark={dark} />}
               />
-              <Route path="/" element={<SuperAdminDashboard />} />
+              <Route path="/SuperAdminDashboard" element={<SuperAdminDashboard />} />
+              <Route path="/" element={<LaboratoryInventory />} />
             </Routes>
           </div>
         </RequestProvider>
