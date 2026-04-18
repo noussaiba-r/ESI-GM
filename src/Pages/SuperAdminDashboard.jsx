@@ -1,4 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { getDashboardStats, getRoles } from '../Api/superAdmin.api.js';
+import { getLaboratories } from '../Api/LabsMana.api.js';
+import { useNavigate } from 'react-router-dom';
+import UserManagement from './UserManagement.jsx';
 import logo from './logo.jpg';
 import {
   LayoutDashboard,
@@ -26,136 +30,61 @@ import {
 const SuperAdminDashboard = () => {
   const [dark, setDark] = useState(false);
   const toggleTheme = () => setDark(!dark);
+  const [stats, setStats] = useState([]);
+  const [labs, setLabs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [rolesData, setRolesData] = useState([]);
+  const navigate = useNavigate();
 
-  // البيانات (Mock Data)
-  const [stats] = useState([
-    {
-      id: 1,
-      label: 'Total Users',
-      value: 7,
-      icon: Users,
-      color: 'text-blue-500',
-      bg: '',
-      tagText: 'Total',
-      tagValue: null,
-      tagIcon: null,
-      style:
-        'border-[0.667px] border-[rgba(43,127,255,0.20)] bg-[linear-gradient(135deg,rgba(43,127,255,0.10)_0%,rgba(21,93,252,0.05)_100%)]',
-      status: 'rounded-[22369600px] bg-[rgba(43,127,255,0.20)]',
-    },
-    {
-      id: 2,
-      label: 'Laboratories',
-      value: 4,
-      icon: Building2,
-      color: 'text-purple-500',
-      bg: '',
-      tagText: 'Active',
-      tagValue: 3,
-      tagIcon: null,
-      style:
-        'border-[0.667px] border-[rgba(173,70,255,0.20)] bg-[linear-gradient(135deg,rgba(173,70,255,0.10)_0%,rgba(152,16,250,0.05)_100%)]',
-      status: 'rounded-[22369600px] bg-[rgba(173,70,255,0.20)]',
-    },
-    {
-      id: 3,
-      label: 'Total Materials',
-      value: 47,
-      icon: Box,
-      color: 'text-green-500',
-      bg: '',
-      tagText: '',
-      tagValue: null,
-      tagIcon: TrendingUp,
-      style:
-        'border-[0.667px] border-[rgba(0,201,80,0.20)] bg-[linear-gradient(135deg,rgba(0,201,80,0.10)_0%,rgba(0,166,62,0.05)_100%)]',
-      status: 'text-[#05DF72]',
-    },
-    {
-      id: 4,
-      label: 'Total Requests',
-      value: 3,
-      icon: Activity,
-      color: 'text-orange-500',
-      bg: '',
-      tagText: 'Pending',
-      tagValue: 3,
-      tagIcon: null,
-      style:
-        'border-[0.667px] border-[rgba(255,105,0,0.20)] bg-[linear-gradient(135deg,rgba(255,105,0,0.10)_0%,rgba(245,73,0,0.05)_100%)]',
-      status: 'rounded-[22369600px] bg-[rgba(255,105,0,0.20)]',
-    },
-  ]);
+  const getStatConfig = (label) => {
+    const l = label.toLowerCase();
+    if (l.includes('user')) {
+      return { icon: Users, color: 'text-blue-600', bg: 'bg-blue-50/50' };
+    }
+    if (l.includes('lab')) {
+      return { icon: Building2, color: 'text-purple-600', bg: 'bg-purple-50/50' };
+    }
+    if (l.includes('material') || l.includes('item')) {
+      return { icon: Box, color: 'text-green-600', bg: 'bg-green-50/50' };
+    }
+    if (l.includes('request')) {
+      return { icon: GitPullRequest, color: 'text-orange-600', bg: 'bg-orange-50/50' };
+    }
+    // ديفو إذا ما عرفش الـ label
+    return { icon: Activity, color: 'text-gray-600', bg: 'bg-gray-50/50' };
+  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
 
-  const [rolesData] = useState([
-    {
-      id: 1,
-      label: 'Lab Admins',
-      count: 4,
-      icon: Shield,
-      color: 'text-red-500 bg-[rgba(251,44,54,0.10)]',
-      managePath: '/manage-lab-admins',
-      details: 'Manage Lab Admins →',
-    },
-    {
-      id: 2,
-      label: 'Warehouse Managers',
-      count: 1,
-      icon: Wrench,
-      color: 'text-blue-500 bg-[rgba(43,127,255,0.10)]',
-      managePath: '/manage-managers',
-      details: 'Manage Warehouse Managers →',
-    },
-    {
-      id: 3,
-      label: 'Students',
-      count: 1,
-      icon: GraduationCap,
-      color: 'text-green-500 bg-[rgba(0,201,80,0.10)]',
-      managePath: '/view-students',
-      details: 'View Students →',
-    },
-  ]);
+        const statsData = await getDashboardStats();
+        const labsData = await getLabsList();
+        const rolesData = await getRoles();
+        setStats(statsData);
+        setLabs(labsData);
 
-  const [labs] = useState([
-    {
-      id: 1,
-      name: 'Lab A',
-      building: 'Building A ',
-      floor: 'Floor 2',
-      capacity: 20,
-      admin: 'Admin User',
-      status: 'active',
-    },
-    {
-      id: 2,
-      name: 'Lab B',
-      building: 'Building B ',
-      floor: 'Floor 1',
-      capacity: 25,
-      admin: 'Dr. Ahmed Benali',
-      status: 'active',
-    },
-    {
-      id: 3,
-      name: 'Lab C',
-      building: 'Building C',
-      floor: 'Floor 3',
-      capacity: 15,
-      admin: 'Prof. Fatima Zahra',
-      status: 'active',
-    },
-    {
-      id: 4,
-      name: 'Lab D',
-      building: 'Building D',
-      floor: '  Floor 1',
-      capacity: 40,
-      admin: 'Mr. Mohamed Cherif',
-      status: 'warning',
-    },
-  ]);
-
+        setRolesData(roles);
+      } catch (err) {
+        console.error('Error loading data');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-white dark:bg-[#020817]">
+        {/* تقدري تديري Spinner تدور هنا */}
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+  const iconMap = {
+    Admins: Users,
+    Students: GraduationCap,
+  };
   return (
     <div
       className={`flex min-h-screen transition-colors duration-300 ${dark ? 'bg-[#020817] text-white' : 'bg-[rgba(255, 255, 255, 0.95)] text-slate-900'}`}
@@ -249,28 +178,33 @@ const SuperAdminDashboard = () => {
 
         {/* 1. Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-5 mb-8">
-          {stats.map((s) => (
-            <div key={s.id} className={`rounded-2xl border-[0.667px] p-4 ml-2 ${s.style}`}>
-              <div className="flex justify-between items-start mb-2">
-                <div className={`p-1 rounded-2xl ${s.color} ${s.bg}`}>
-                  <s.icon size={22} />
+          {stats.map((s) => {
+            // نعيطو للدالة اللي تعطينا الأيقونة واللون على حساب الـ label اللي جابو الـ API
+            const config = getStatConfig(s.label);
+            const Icon = config.icon;
+            return (
+              <div key={s.id} className={`rounded-2xl border-[0.667px] p-4 ml-2 ${s.style}`}>
+                <div className="flex justify-between items-start mb-2">
+                  <div className={`p-1 rounded-2xl ${s.color} ${s.bg}`}>
+                    <Icon size={22} />
+                  </div>
+                  <span
+                    className={`text-[9px] font-bold px-2 py-0.5 rounded-full mt-2 uppercase tracking-tighter ${s.status} ${s.color}`}
+                  >
+                    {s.tagIcon ? <s.tagIcon /> : s.tagValue} {s.tagText}
+                  </span>
                 </div>
-                <span
-                  className={`text-[9px] font-bold px-2 py-0.5 rounded-full mt-2 uppercase tracking-tighter ${s.status} ${s.color}`}
-                >
-                  {s.tagIcon ? <s.tagIcon /> : s.tagValue} {s.tagText}
-                </span>
+                <div className="mt-2">
+                  <p className="text-4xl font-bold pb-2 pl-1">{s.value}</p>
+                  <h2
+                    className={`${dark ? 'text-[#94A3B8]' : 'text-[#64748B]'} pl-1 text-[11px] font-medium text-[10px] leading-[20px] uppercase tracking-wider`}
+                  >
+                    {s.label}
+                  </h2>
+                </div>
               </div>
-              <div className="mt-2">
-                <p className="text-4xl font-bold pb-2 pl-1">{s.value}</p>
-                <h2
-                  className={`${dark ? 'text-[#94A3B8]' : 'text-[#64748B]'} pl-1 text-[11px] font-medium text-[10px] leading-[20px] uppercase tracking-wider`}
-                >
-                  {s.label}
-                </h2>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* 2. Roles Section */}
@@ -278,7 +212,7 @@ const SuperAdminDashboard = () => {
           {rolesData.map((role) => (
             <RoleCard
               key={role.id}
-              icon={role.icon}
+              icon={iconMap[role.label]}
               count={role.count}
               label={role.label}
               color={role.color}
@@ -355,48 +289,32 @@ const SuperAdminDashboard = () => {
 
         {/* 4. The Two Management Buttons */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 bg-transparent">
-          <ManagementBtn
-            icon={Users}
-            label="User Management"
-            sub="Add admins, manage permissions and roles"
-            color="bg-[rgba(43,127,255,0.09)] text-blue-600"
-            dark={dark}
-            className="bg-[rgba(43,127,255,0.05)]"
-          />
-          <ManagementBtn
-            icon={Beaker}
-            label="Laboratory Management"
-            sub="Configure locations, assign admins"
-            color="bg-[rgba(173,70,255,0.09)] text-purple-600"
-            dark={dark}
-            className="bg-[rgba(173,70,255,0.04)]"
-          />
+          <div onClick={() => navigate('/users')} className="cursor-pointer">
+            <ManagementBtn
+              icon={Users}
+              label="User Management"
+              sub="Add admins, manage permissions and roles"
+              color="bg-[rgba(43,127,255,0.09)] text-blue-600"
+              dark={dark}
+              className="bg-[rgba(43,127,255,0.05)]"
+            />
+          </div>
+          <div onClick={() => navigate('/labs')} className="cursor-pointer">
+            <ManagementBtn
+              icon={Beaker}
+              label="Laboratory Management"
+              sub="Configure locations, assign admins"
+              color="bg-[rgba(173,70,255,0.09)] text-purple-600"
+              dark={dark}
+              className="bg-[rgba(173,70,255,0.04)]"
+            />
+          </div>
         </div>
       </main>
     </div>
   );
 };
 
-// --- Sub-Components ---
-{
-  /* } const RoleCard = ({ icon: Icon, count, label, color, dark, className = '' }) => (
-  <div
-    className={`p-5 rounded-[2.2rem] border flex items-center gap-4 ${dark ? 'bg-[#0f172a] border-[#2B4C9F]' : 'bg-white border-gray-100 shadow-sm'}`}
-  >
-    <div className={`p-4 rounded-2xl ${dark ? 'bg-slate-800' : 'bg-gray-50'} ${color}`}>
-      <Icon size={26} />
-    </div>
-    <div>
-      <p className="text-2xl font-bold leading-none">{count}</p>
-      <p className="text-xs text-gray-400 font-medium">{label}</p>
-      <button className="text-[10px] text-blue-600 font-bold flex items-center mt-1">
-        Manage <ChevronRight size={10} />
-      </button>
-    </div>
-  </div>
-);
- */
-}
 const RoleCard = ({ icon: Icon, count, label, color, dark, details, className = '' }) => (
   <div
     className={`p-5 pb-5 pl-4 rounded-2xl border-[0.667px] transition-all hover:translate-y-[-2px] hover:shadow-md flex flex-col gap-3 ${dark ? 'bg-[#0A1128] border-[#1E293B]' : 'border-[#E2E8F0] bg-[#F8FAFC]'} ${className}`}

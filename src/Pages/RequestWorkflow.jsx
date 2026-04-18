@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { getMaterialRequests } from '../Api/requestWork.api';
+import { useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   Boxes,
@@ -25,57 +27,6 @@ import {
 } from 'lucide-react';
 import logo from './logo.jpg';
 
-const requestsData = [
-  {
-    title: 'IoT Weather Station',
-    status: 'Completed',
-    student: 'Sarah Student',
-    lab: 'Lab A - Electronics',
-    date: 'Feb 20, 2026, 10:00 AM',
-    materials: 2,
-    qr: 'REQ-001',
-    returnDate: '05/03/2026',
-    issuedBy: 'John Keeper',
-    actions: [],
-  },
-  {
-    title: 'Smart Home Automation',
-    status: 'In Use',
-    student: 'Sarah Student',
-    lab: 'Lab C - IoT',
-    date: 'Mar 8, 2026, 11:00 AM',
-    materials: 2,
-    qr: 'REQ-002',
-    returnDate: '22/03/2026',
-    issuedBy: 'Alex Lab',
-    actions: ['Confirm Return', 'View QR Code'],
-  },
-  {
-    title: 'Robotic Arm Control',
-    status: 'Ready',
-    student: 'Ahmed Benali',
-    lab: 'Lab B - Robotics',
-    date: 'Mar 10, 2026, 10:00 AM',
-    materials: 2,
-    qr: 'REQ-003',
-    returnDate: '30/03/2026',
-    issuedBy: '-',
-    actions: ['Confirm Pickup', 'View QR Code'],
-  },
-  {
-    title: 'Network Security Lab',
-    status: 'Approved',
-    student: 'Nadia Bensaid',
-    lab: 'Lab D - Networks',
-    date: 'Mar 11, 2026, 02:00 PM',
-    materials: 2,
-    qr: 'REQ-004',
-    returnDate: '25/03/2026',
-    issuedBy: '-',
-    actions: ['Mark Ready', 'View QR Code'],
-  },
-];
-
 const statusColors = {
   Completed: 'bg-[rgba(0,201,80,0.20)] text-[#05DF72] border-[rgba(0,201,80,0.50)]',
   'In Use': 'bg-[rgba(97,95,255,0.20)] text-[#7C86FF] border-[rgba(97,95,255,0.50)]',
@@ -86,6 +37,25 @@ const statusColors = {
 export default function MaterialRequests() {
   const [dark, setDark] = useState(false);
   const [filter, setFilter] = useState('All');
+  const navigate = useNavigate();
+  const [requestsData, setRequestsData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const loadRequests = async () => {
+      try {
+        setLoading(true);
+        const data = await getMaterialRequests();
+        setRequestsData(data);
+      } catch (err) {
+        setError('Could not load data from server');
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadRequests();
+  }, []);
 
   const filtered =
     filter === 'All' ? requestsData : requestsData.filter((r) => r.status === filter);
@@ -128,6 +98,9 @@ export default function MaterialRequests() {
               const Icon = item.icon;
               return (
                 <div
+                  onClick={() => {
+                    if (item.name === 'Dashboard') navigate('/SuperAdminDashboard');
+                  }}
                   key={item.name}
                   className={`p-2 rounded-lg cursor-pointer flex items-center gap-2 ${
                     item.name === 'Requests'
@@ -249,7 +222,10 @@ export default function MaterialRequests() {
               </div>
             </div>
             <div>
-              <button className="bg-[#6366F1] hover:bg-indigo-700 text-white px-6 py-3 rounded-2xl text-sm font-bold transition-all shadow-lg flex items-center gap-3">
+              <button
+                onClick={() => navigate('/RequestButtonsGuide ')}
+                className="bg-[#6366F1] hover:bg-indigo-700 text-white px-6 py-3 rounded-2xl text-sm font-bold transition-all shadow-lg flex items-center gap-3"
+              >
                 <BookOpen size={20} /> View Complete Button Guide
               </button>
             </div>
@@ -257,91 +233,106 @@ export default function MaterialRequests() {
 
           {/* Cards List */}
           <div className="space-y-4">
-            {filtered.map((req, i) => (
-              <div
-                key={i}
-                className="bg-[#F8FAFC] dark:bg-[#121825] rounded-xl border dark:border-gray-700 p-6 space-y-4 hover:shadow-md transition shadow-sm"
-              >
-                <div className="flex items-start">
-                  <h2 className="font-bold text-lg mr-3">{req.title}</h2>
-                  <span
-                    className={`px-4 mt-1 py-1 border rounded-full text-sm font-medium ${statusColors[req.status]}`}
-                  >
-                    {req.status === 'Completed' ? (
-                      <CheckCircle className="mb-1" size={14} />
-                    ) : (
-                      <Timer className="mb-1" size={14} />
-                    )}
-                    {req.status}
-                  </span>
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-300 dark:border-gray-700">
+                <div className="animate-spin text-indigo-500 mb-4">
+                  <RotateCcw size={32} />
                 </div>
-
-                <div className="text-sm text-[#64748B] dark:text-[#94A3B8] font-medium">
-                  <User lassName="pb-1" size={22} /> {req.student} •
-                  <MapPin className="pb-1" size={22} /> {req.lab}{' '}
-                  <Calendar className="pb-1" size={22} />
-                  {req.date}
-                </div>
-
-                <div className="grid grid-cols-4 gap-4 bg-gray-50 dark:bg-gray-900/50 p-4 rounded-xl">
-                  <div className="bg-[rgba(241,245,249,0.50)] dark:bg-[#1E293B] rounded-xl p-3">
-                    <p className="text-[10px] text-[#64748B] font-semibold dark:text-[#94A3B8] uppercase">
-                      Materials
-                    </p>
-                    <p className="font-medium">{req.materials}</p>
+                <p className="text-gray-500">Fetching requests from server...</p>
+              </div>
+            ) : filtered.length > 0 ? (
+              filtered.map((req, i) => (
+                <div
+                  key={i}
+                  className="bg-[#F8FAFC] dark:bg-[#121825] rounded-xl border dark:border-gray-700 p-6 space-y-4 hover:shadow-md transition shadow-sm"
+                >
+                  <div className="flex items-start">
+                    <h2 className="font-bold text-lg mr-3">{req.title}</h2>
+                    <span
+                      className={`px-4 mt-1 py-1 border rounded-full text-sm font-medium ${statusColors[req.status]}`}
+                    >
+                      {req.status === 'Completed' ? (
+                        <CheckCircle className="mb-1" size={14} />
+                      ) : (
+                        <Timer className="mb-1" size={14} />
+                      )}
+                      {req.status}
+                    </span>
                   </div>
-                  <div className="bg-[rgba(241,245,249,0.50)] dark:bg-[#1E293B] rounded-xl p-3">
-                    <p className="text-[10px] text-[#64748B] font-semibold uppercase dark:text-[#94A3B8]">
-                      QR Code
-                    </p>
-                    <p className="font-medium">{req.qr}</p>
-                  </div>
-                  <div className="bg-[rgba(241,245,249,0.50)] dark:bg-[#1E293B] rounded-xl p-3">
-                    <p className="text-[10px] text-[#64748B] font-semibold uppercase dark:text-[#94A3B8]">
-                      Expected Return
-                    </p>
-                    <p className="font-medium">{req.returnDate}</p>
-                  </div>
-                  <div className="bg-[rgba(241,245,249,0.50)] dark:bg-[#1E293B] rounded-xl p-3">
-                    <p className="text-[10px] text-[#64748B] font-semibold uppercase dark:text-[#94A3B8]">
-                      Issued By
-                    </p>
-                    <p className="font-medium">{req.issuedBy}</p>
-                  </div>
-                </div>
 
-                {/* --- HNA ZEDT L'LOGIC TA3 LES ICONS SGHAR --- */}
-                {req.actions.length > 0 && (
-                  <div className="flex flex-col gap-3 pt-2 mt-3 border-t border-[#E2E8F0] dark:border-[#1E293B]">
-                    <h3>Actions :</h3>
-                    <div className="flex flex-wrap gap-3">
-                      {req.actions.map((action, idx) => (
-                        <button
-                          key={idx}
-                          className={`px-5 py-2.5 border rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all ${
-                            action === 'Confirm Return'
-                              ? 'bg-[#FF6900] text-[#FFF] border-transparent'
-                              : action === 'Confirm Pickup'
-                                ? 'bg-[#AD46FF] text-[#FFF] border-transparent'
-                                : action === 'Mark Ready'
-                                  ? 'bg-[#00B8DB] text-[#FFF] border-transparent'
-                                  : 'bg-[rgba(99,101,232,0.2)] text-[#6366F1] border-[rgba(99,102,241,0.50)]' // View QR Code yji Indigo
-                          }`}
-                        >
-                          {/* Condition par icône */}
-                          {action === 'Confirm Return' && <RotateCcw size={16} />}
-                          {action === 'Confirm Pickup' && <PlayCircle size={16} />}
-                          {action === 'Mark Ready' && <PackageCheck size={16} />}
-                          {action === 'View QR Code' && <QrCode size={16} />}
+                  <div className="text-sm text-[#64748B] dark:text-[#94A3B8] font-medium">
+                    <User lassName="pb-1" size={22} /> {req.student} •
+                    <MapPin className="pb-1" size={22} /> {req.lab}{' '}
+                    <Calendar className="pb-1" size={22} />
+                    {req.date}
+                  </div>
 
-                          {action}
-                        </button>
-                      ))}
+                  <div className="grid grid-cols-4 gap-4 bg-gray-50 dark:bg-gray-900/50 p-4 rounded-xl">
+                    <div className="bg-[rgba(241,245,249,0.50)] dark:bg-[#1E293B] rounded-xl p-3">
+                      <p className="text-[10px] text-[#64748B] font-semibold dark:text-[#94A3B8] uppercase">
+                        Materials
+                      </p>
+                      <p className="font-medium">{req.materials}</p>
+                    </div>
+                    <div className="bg-[rgba(241,245,249,0.50)] dark:bg-[#1E293B] rounded-xl p-3">
+                      <p className="text-[10px] text-[#64748B] font-semibold uppercase dark:text-[#94A3B8]">
+                        QR Code
+                      </p>
+                      <p className="font-medium">{req.qr}</p>
+                    </div>
+                    <div className="bg-[rgba(241,245,249,0.50)] dark:bg-[#1E293B] rounded-xl p-3">
+                      <p className="text-[10px] text-[#64748B] font-semibold uppercase dark:text-[#94A3B8]">
+                        Expected Return
+                      </p>
+                      <p className="font-medium">{req.returnDate}</p>
+                    </div>
+                    <div className="bg-[rgba(241,245,249,0.50)] dark:bg-[#1E293B] rounded-xl p-3">
+                      <p className="text-[10px] text-[#64748B] font-semibold uppercase dark:text-[#94A3B8]">
+                        Issued By
+                      </p>
+                      <p className="font-medium">{req.issuedBy}</p>
                     </div>
                   </div>
-                )}
+
+                  {/* --- HNA ZEDT L'LOGIC TA3 LES ICONS SGHAR --- */}
+                  {req.actions.length > 0 && (
+                    <div className="flex flex-col gap-3 pt-2 mt-3 border-t border-[#E2E8F0] dark:border-[#1E293B]">
+                      <h3>Actions :</h3>
+                      <div className="flex flex-wrap gap-3">
+                        {req.actions.map((action, idx) => (
+                          <button
+                            key={idx}
+                            className={`px-5 py-2.5 border rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all ${
+                              action === 'Confirm Return'
+                                ? 'bg-[#FF6900] text-[#FFF] border-transparent'
+                                : action === 'Confirm Pickup'
+                                  ? 'bg-[#AD46FF] text-[#FFF] border-transparent'
+                                  : action === 'Mark Ready'
+                                    ? 'bg-[#00B8DB] text-[#FFF] border-transparent'
+                                    : 'bg-[rgba(99,101,232,0.2)] text-[#6366F1] border-[rgba(99,102,241,0.50)]' // View QR Code yji Indigo
+                            }`}
+                          >
+                            {/* Condition par icône */}
+                            {action === 'Confirm Return' && <RotateCcw size={16} />}
+                            {action === 'Confirm Pickup' && <PlayCircle size={16} />}
+                            {action === 'Mark Ready' && <PackageCheck size={16} />}
+                            {action === 'View QR Code' && <QrCode size={16} />}
+
+                            {action}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-20 bg-gray-50 dark:bg-gray-900/30 rounded-2xl border border-dashed border-gray-300 dark:border-gray-700">
+                <Package size={48} className="mx-auto text-gray-300 mb-4" />
+                <p className="text-gray-500 font-medium">No material requests found.</p>
+                <p className="text-sm text-gray-400">Requests from students will appear here.</p>
               </div>
-            ))}
+            )}
           </div>
         </main>
       </div>

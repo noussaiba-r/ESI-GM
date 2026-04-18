@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import NewRequestModal from '../Components/NewRequestModal';
 import logo from './logo.jpg';
 import ValidationSlipPage from './ValidationSlipPage';
+import { getMyRequests } from '../Api/requests.api.js';
+import { useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   FolderKanban,
@@ -29,6 +31,7 @@ const MyRequestsPage = ({ toggleTheme, dark }) => {
   const addRequest = (newRequest) => {
     setRequests([newRequest, ...requests]);
   };
+  const navigate = useNavigate();
 
   const [showModal, setShowModal] = useState(false);
   const [requests, setRequests] = useState([]);
@@ -36,50 +39,20 @@ const MyRequestsPage = ({ toggleTheme, dark }) => {
   const MAX_REQUESTS = 5;
 
   useEffect(() => {
-    const fetchData = async () => {
-      const mockData = [
-        {
-          id: 1,
-          title: 'Robotics Arm Control',
-          requestedBy: 'Sarah Student',
-          date: '2/20/2026',
-          status: 'Pending',
-          update: '2/20/2026',
-          items: [
-            { name: 'Soldering Station', qty: 1 },
-            { name: 'Power Supply DC 0-30V', qty: 2 },
-          ],
-          manualReview: true,
-        },
-        {
-          id: 2,
-          title: 'IoT Weather Station',
-          requestedBy: 'Sarah Student',
-          date: '2/15/2026',
-          status: 'Approved',
-          update: '2/16/2026',
-          items: [
-            { name: 'Arduino Uno R3', qty: 3 },
-            { name: 'Multimeter Fluke 87V', qty: 2 },
-          ],
-          deliveryStatus: 'Not Delivered',
-        },
-        {
-          id: 3,
-          title: 'IoT Weather Station',
-          requestedBy: 'Sarah Student',
-          date: '2/5/2026',
-          status: 'Completed',
-          update: '2/10/2026',
-          items: [{ name: 'Laptop Dell Precision', qty: 1 }],
-        },
-      ];
-      setRequests(mockData);
+    const loadRequests = async () => {
+      setLoading(true);
+      const data = await getMyRequests();
+      setRequests(data);
       setLoading(false);
     };
-
-    fetchData();
+    loadRequests();
   }, []);
+
+  // دالة تحديث القائمة بعد إضافة طلب جديد (تستعمل في الـ Modal)
+  const refreshRequests = async () => {
+    const data = await getMyRequests();
+    setRequests(data);
+  };
 
   const getStatusStyle = (status) => {
     switch (status) {
@@ -134,11 +107,13 @@ ${dark ? 'bg-[#020817] border-r border-[#2B4C9F]' : 'bg-[#FFF] border-r border-[
         </div>
 
         <nav className="flex flex-col p-4 gap-2 flex-1">
-          <NavItem
-            className={`${dark ? 'text-[#E8EAF0]' : 'text-[#0F172A]'}`}
-            icon={<LayoutDashboard size={20} />}
-            label="Dashboard"
-          />
+          <div onClick={() => navigate('/SuperAdminDashboard')}>
+            <NavItem
+              className={`${dark ? 'text-[#E8EAF0]' : 'text-[#0F172A]'}`}
+              icon={<LayoutDashboard size={20} />}
+              label="Dashboard"
+            />
+          </div>
           <NavItem
             icon={<FolderKanban size={20} />}
             label="My Projects"

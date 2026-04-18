@@ -1,0 +1,33 @@
+import {
+  LayoutDashboard,
+  Boxes,
+  QrCode,
+  ArrowLeftRight,
+  FileOutput,
+  Wrench,
+  Settings,
+  Users,
+  ClipboardList,
+  Clock3,
+  CheckCircle2,
+  Package,
+  ChevronDown,
+  Filter,
+} from "lucide-react";
+
+export const Icon = {
+  dashboard: LayoutDashboard,
+  inventory: Boxes,
+  scanner: QrCode,
+  transfer: ArrowLeftRight,
+  output: FileOutput,
+  maintenance: Wrench,
+  settings: Settings,
+  users: Users,
+  requests: ClipboardList,
+  clock: Clock3,
+  checkCircle: CheckCircle2,
+  box: Package,
+  chevronDown: ChevronDown,
+  filter: Filter,
+};

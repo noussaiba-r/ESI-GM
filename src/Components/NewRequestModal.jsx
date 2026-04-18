@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, Plus, CheckCircle2, Trash2, AlertCircle } from 'lucide-react';
 import axios from 'axios';
-import { createRequest, validateRequest } from '../api/req';
+import { submitNewRequest, validateStock } from '../Api/requests.api.js';
 import { useEffect } from 'react';
 
 const NewRequestModal = ({ isOpen, onClose, onAddRequest, dark }) => {
@@ -115,44 +115,35 @@ const NewRequestModal = ({ isOpen, onClose, onAddRequest, dark }) => {
   };
 
   // to Backend
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
+    // رجعيها async
     e.preventDefault();
 
     if (validateForm()) {
       setSubmitting(true);
+      setServerError(''); // فرغي المشاكل القديمة
+
       try {
         const finalSubmission = {
-          ...formData,
+          project: formData.project,
+          purpose: formData.purpose,
+          startDate: formData.startDate,
+          endDate: formData.endDate,
           items: materials.map((m) => ({ name: m.name, qty: m.qty })),
-          status: 'Pending',
-          date: new Date().toLocaleDateString(),
+          // الـ status والـ date السيرفر هو اللي يديرهم في العادة
         };
-        console.log(finalSubmission);
 
-        //hada l comment ana7ih ki ykoun kayen backend
-        //const response = await axios.post("/api/requests", finalSubmission);
-        //if (onAddRequest) onAddRequest(response.data);
-        // -----------hada rah brk ki makach l backend ---------------
-        if (onAddRequest)
-          onAddRequest({
-            id: Date.now(),
-            ...finalSubmission,
-          });
-        setFormData({
-          project: '',
-          purpose: '',
-          startDate: '',
-          endDate: '',
-        });
+        // نعيطو للدالة لي درناها في ملف الـ api
+        const response = await submitNewRequest(finalSubmission);
 
-        setMaterials([{ id: Date.now(), name: '', qty: 1 }]);
-        setIsValidated(false);
-        //-----------------------------------------------
-        alert('the request sent with success');
-        onClose();
+        // إذا نجحت العملية:
+        if (onAddRequest) onAddRequest(response); // نحدثو القائمة في الصفحة الرئيسية
+
+        alert('Request sent with success!');
+        onClose(); // نغلقو المودال
       } catch (err) {
-        setServerError('Something went wrong');
-        console.error('Error sending request:', err);
+        // إذا صرا مشكل (مثلا السيرفر طافي)
+        setServerError(err.message || 'Something went wrong while sending');
       } finally {
         setSubmitting(false);
       }
@@ -398,6 +389,13 @@ const NewRequestModal = ({ isOpen, onClose, onAddRequest, dark }) => {
               Cancel
             </button>
           </div>
+
+          {serverError && (
+            <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm flex items-center gap-2">
+              <AlertCircle size={16} />
+              {serverError}
+            </div>
+          )}
         </form>
         {serverError && <p className="text-red-500 text-sm">{serverError}</p>}
       </div>

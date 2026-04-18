@@ -1,5 +1,6 @@
 import React from 'react';
 import { useEffect } from 'react';
+import { QRCodeSVG } from 'qrcode.react';
 import {
   X,
   Printer,
@@ -43,6 +44,8 @@ const ValidationSlipPage = ({ isOpen, onClose, requestData, dark }) => {
   const handlePrint = () => {
     window.print();
   };
+
+  const validationDate = requestData.validatedAt ? new Date(requestData.validatedAt) : new Date();
 
   return (
     <div
@@ -130,7 +133,8 @@ const ValidationSlipPage = ({ isOpen, onClose, requestData, dark }) => {
               <p
                 className={`flex items-start text-sm font-bold ${dark ? 'text-[#E8EAF0]' : 'text-[#0F172A]'}`}
               >
-                <Calendar className="w-[20px] h-[20px] p-[3px]" /> {formattedDate}
+                <Calendar className="w-[20px] h-[20px] p-[3px]" />{' '}
+                {validationDate.toLocaleDateString('fr-FR', options)}
               </p>
             </div>
           </div>
@@ -212,15 +216,15 @@ const ValidationSlipPage = ({ isOpen, onClose, requestData, dark }) => {
                       <td
                         className={`px-4 py-3 font-medium ${dark ? 'text-[#E8EAF0]' : 'text-[#0F172A]'}`}
                       >
-                        {item.name}
+                        {item.name || item.materialId?.name}
                       </td>
                       <td className={`px-4 py-3 ${dark ? 'text-[#94A3B8]' : 'text-[#64748B]'}`}>
-                        {item.category || 'Electronics'}
+                        {item.category || 'Matériel'}
                       </td>
                       <td
                         className={`px-4 py-3 font-medium text-center ${dark ? 'text-[#94A3B8]' : 'text-[#64748B]'}`}
                       >
-                        {item.qty}
+                        {item.qty || item.quantity}
                       </td>
                     </tr>
                   ))}
@@ -244,8 +248,15 @@ const ValidationSlipPage = ({ isOpen, onClose, requestData, dark }) => {
             </div>
 
             <div className="flex h-[180px] sm:h-[200px] w-full max-w-[650px] mb-[20px] justify-center items-center bg-white rounded-2xl shadow-sm">
+              {/* الإطار الأسود الخارجي للـ QR */}
               <div className="bg-white p-4 rounded-xl border-[12px] border-solid border-[#101828] shadow-sm border mb-2">
-                <QrCode size={100} className="text-slate-900" />
+                {/* هنا نحطو الـ QR Code الحقيقي */}
+                <QRCodeSVG
+                  value={requestData.validationCode || 'NO-CODE'}
+                  size={120}
+                  level="H" // جودة عالية باش حتى ويكون مطبوع يبان
+                  includeMargin={false}
+                />
               </div>
             </div>
 
