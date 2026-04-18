@@ -105,7 +105,7 @@ const LaboratoryManagementPage = () => {
   return (
     <div className={darkMode ? 'dark' : ''}>
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white flex">
-        <aside className="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col">
+        <aside className="hidden md:flex w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex-col">
           <div className="h-20 px-6 flex items-center gap-3 border-b border-slate-100 dark:border-slate-800">
             <div className="flex-shrink-0 w-[48px] h-[48px]">
               <img
@@ -155,8 +155,8 @@ const LaboratoryManagementPage = () => {
             </button>
           </header>
 
-          <div className="p-8">
-            <div className="flex items-start justify-between gap-6 mb-8">
+          <div className="p-4 sm:p-6 lg:p-8">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 mb-8">
               <div>
                 <h2 className="text-3xl font-bold tracking-tight">Laboratory Management</h2>
                 <p className="text-slate-500 mt-1">
@@ -170,7 +170,7 @@ const LaboratoryManagementPage = () => {
               </button>
             </div>
 
-            <div className="grid grid-cols-4 gap-5 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
               {[
                 {
                   label: 'Total Laboratories',
@@ -247,7 +247,7 @@ const LaboratoryManagementPage = () => {
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               {filteredLabs.map((lab) => (
                 <div
                   key={lab.id}
